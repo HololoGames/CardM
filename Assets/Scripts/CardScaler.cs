@@ -39,10 +39,28 @@ public class CardScaler : MonoBehaviour
     IEnumerator spawnCards()
     {
         int nbrOfCards = nbrCol * nbrRow;
+        
         for(int i=0;i<nbrOfCards;i++)
         {
-            Instantiate(cardModel, transform);
+            Card card= Instantiate(cardModel, transform);
+            StartCoroutine(spawnAnimation(card.GetComponent<Image>()));
+            yield return new WaitUntil(() => !beginAnimation);
+           
+        }
+    }
+    bool beginAnimation = false;
+    IEnumerator spawnAnimation(Image cardImage)
+    {
+        beginAnimation = true;       
+        float timeInSec = 0, timeToAnimate = 0.1f;
+        Color c = cardImage.color;
+        while (timeInSec < timeToAnimate)
+        {
+            cardImage.color = new Color(c.r, c.g, c.b, Mathf.Lerp(0, 1,timeInSec / timeToAnimate));
+            timeInSec += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
+        cardImage.color = new Color(c.r,c.g,c.b,1);
+        beginAnimation = false;
     }
 }
