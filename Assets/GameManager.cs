@@ -80,19 +80,21 @@ public class GameManager : MonoBehaviour
         
         previousCard = activeCard;
         activeCard = card;
-        if (Card.activeCards < 2)
-            return;
+        
         if (!previousCard)
             return;
         if( previousCard.getCardImage().sprite== activeCard.getCardImage().sprite)
         {
-            Destroy(previousCard.gameObject);
-            Destroy(activeCard.gameObject);
+           
+            activeCard.match(true,previousCard);
+            previousCard.match(true,activeCard);
+            activeCard = previousCard = null;
         }
         else
         {
-            
-            previousCard.match(false);
+            activeCard.match(false,null);
+            previousCard.match(false,null);
+            activeCard = previousCard = null;
             
         }
     }

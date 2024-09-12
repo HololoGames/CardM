@@ -5,11 +5,10 @@ using UnityEngine.UI;
 
 public class Card : MonoBehaviour
 {
-    [SerializeField]
-    float resetTime=2;
+   
     [SerializeField]
     Sprite frontCardEmpty;
-    public static int activeCards=0;
+  
      Image cardImage;
     
 
@@ -37,19 +36,20 @@ public class Card : MonoBehaviour
         backCardImage = GetComponent<Image>().sprite;
 
         StartCoroutine(flip(true,flipedRotation,initRotation));
-       
+        yield return new WaitUntil(() => finishedFlipAnim);
         GameManager.instance.addCard(this);
-        yield return new WaitForSeconds(resetTime);
+
         
-        StartCoroutine(flip(false, flipedRotation, initRotation));
+      
+       
        
     }
+    bool finishedFlipAnim = true;
     IEnumerator flip(bool back,Vector2 flipedRotation,Vector2 initRotation)
     {
-        if (back)
-            activeCards++;
-        else
-            activeCards--;
+       
+        finishedFlipAnim = false;
+       
         float animationTime = 0.1f, timeInsec = 0;
        
         Image image = GetComponent<Image>();
@@ -76,16 +76,46 @@ public class Card : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         transform.localEulerAngles =flipedRot;
+        yield return new WaitForSeconds(0.1f);
+        finishedFlipAnim = true;
     }
 
-    public void match(bool isMatch)
+    public void match(bool isMatch,Card matchedCard)
     {
         if(!isMatch)
         {
             StopAllCoroutines();
             StartCoroutine(flip(false, flipedRotation, initRotation));
         }
+        else
+        {
+            
+            StopAllCoroutines();
+            StartCoroutine(goToMachingPosition(matchedCard));
+        }
     }
+
+    IEnumerator goToMachingPosition(Card matchingCard)
+    {
+        Vector2 finalPos = (matchingCard.transform.localPosition + transform.localPosition) / 2;
+        Vector2 initPos = transform.localPosition;
+        float timeInSec = 0, timeToAnimate = 0.5f;
+        while(timeInSec<timeToAnimate)
+        {
+            transform.localPosition = Vector2.Lerp(initPos, finalPos, timeInSec / timeToAnimate);
+            timeInSec += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+
+        }
+        yield return new WaitForSeconds(0.2f);
+        Destroy(gameObject);
+
+    }
+
+
+
+
+
 
     public void setcardImage(Sprite img)
     {
@@ -96,4 +126,5 @@ public class Card : MonoBehaviour
     {
         return cardImage;
     }
+
 }
