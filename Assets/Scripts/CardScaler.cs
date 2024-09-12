@@ -32,7 +32,7 @@ public class CardScaler : MonoBehaviour
         float x = ((panelTransform.rect.width - gridLayoutGroup.padding.left + gridLayoutGroup.padding.right) - nbrCol * gridLayoutGroup.spacing.x) / nbrCol;
         float y = (panelTransform.rect.height - gridLayoutGroup.padding.top + gridLayoutGroup.padding.bottom - nbrCol * gridLayoutGroup.spacing.y) / nbrRow;
         gridLayoutGroup.cellSize = new Vector2(x, y);
-       StartCoroutine(GameManager.instance.spawnCards(nbrCol,nbrRow,transform));
+       GameManager.instance.initcards(nbrCol,nbrRow,transform);
         
     }
     

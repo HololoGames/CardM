@@ -9,6 +9,9 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     Card cardModel;
 
+    [SerializeField]
+    List<Sprite> listOfCardImages = new List<Sprite>();
+
     private void Awake()
     {
         instance = this;
@@ -23,17 +26,38 @@ public class GameManager : MonoBehaviour
     {
         
     }
-    public IEnumerator spawnCards(int nbrCol,int nbrRow,Transform cardContainer)
+
+    List<Sprite> cardImages;
+    public void initcards(int nbrCol, int nbrRow, Transform cardContainer)
+    {
+        int nbrOfCards = nbrCol * nbrRow;
+        cardImages = new List<Sprite>();
+        for(int i=0;i<nbrOfCards/2;i++)
+        {
+            cardImages.Add(listOfCardImages[i]);
+            cardImages.Add(listOfCardImages[i]);
+        }
+        cardImages.Shuffle();
+        
+        StartCoroutine(spawnCards(nbrCol, nbrRow, cardContainer));
+
+    }
+
+
+     IEnumerator spawnCards(int nbrCol,int nbrRow,Transform cardContainer)
     {
         int nbrOfCards = nbrCol * nbrRow;
 
         for (int i = 0; i < nbrOfCards; i++)
         {
             Card card = Instantiate(cardModel, cardContainer);
+            
+            card.setcardImage(cardImages[i]);
             StartCoroutine(spawnAnimation(card.GetComponent<Image>()));
             yield return new WaitUntil(() => !beginAnimation);
 
         }
+        cardContainer.GetComponent<GridLayoutGroup>().enabled = false;
     }
     bool beginAnimation = false;
     IEnumerator spawnAnimation(Image cardImage)
@@ -50,4 +74,27 @@ public class GameManager : MonoBehaviour
         cardImage.color = new Color(c.r, c.g, c.b, 1);
         beginAnimation = false;
     }
+    Card activeCard, previousCard;
+    public void addCard(Card card)
+    {
+        
+        previousCard = activeCard;
+        activeCard = card;
+        if (Card.activeCards < 2)
+            return;
+        if (!previousCard)
+            return;
+        if( previousCard.getCardImage().sprite== activeCard.getCardImage().sprite)
+        {
+            Destroy(previousCard.gameObject);
+            Destroy(activeCard.gameObject);
+        }
+        else
+        {
+            
+            previousCard.match(false);
+            
+        }
+    }
+    
 }
