@@ -11,21 +11,23 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
     [SerializeField]
     Card cardModel;
-
     [SerializeField]
     List<Sprite> listOfCardImages = new List<Sprite>();
-
     [SerializeField]
     TextMeshProUGUI matchesText,turnsText,comboText,comboTextSidBar;
     [SerializeField]
-    GameObject nextButton;
+    GameObject nextButton,muteSign;
+    [SerializeField]
+    AudioClip matchCardClip,comboClip, cardPlaceClip;
+    AudioSource audioSource;
+
     private void Awake()
     {
         instance = this;
     }
     void Start()
     {
-        
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -87,6 +89,7 @@ public class GameManager : MonoBehaviour
             timeInSec += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
+        audioSource.PlayOneShot(cardPlaceClip);
         cardImage.color = new Color(c.r, c.g, c.b, 1);
         beginAnimation = false;
     }
@@ -114,6 +117,7 @@ public class GameManager : MonoBehaviour
                 comboText.text = "combo " + combo;
                 comboText.gameObject.SetActive(true);
                 comboTextSidBar.text = combo.ToString();
+                audioSource.PlayOneShot(comboClip);
             }
 
             matchesText.text = matches.ToString();
@@ -144,9 +148,26 @@ public class GameManager : MonoBehaviour
         if (listOfCards.Count <= 0)
             nextButton.SetActive(true);
     }
+    public void playClip(string clip)
+    {
+        switch(clip)
+        {
+            case "match": audioSource.PlayOneShot(matchCardClip);break;
+        }
+    }
     public void home()
     {
         SceneManager.LoadScene(0);
+    }
+    int nbrOfClicks = 0;
+    
+    public void mute()
+    {
+        int r = nbrOfClicks % 2;
+        audioSource.mute=r== 0;
+        muteSign.SetActive(r == 0);
+        Card.mute = r == 0;
+        nbrOfClicks++;
     }
 
     IEnumerator loadCards( Transform cardContainer)

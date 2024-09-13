@@ -8,13 +8,16 @@ public class Card : MonoBehaviour
    
     [SerializeField]
     Sprite frontCardEmpty;
-  
+    [SerializeField]
+    AudioClip flipClip;
      Image cardImage;
-    
 
+    AudioSource audioSource;
+   
+    public static bool mute;
     void Start()
     {
-       
+        audioSource = GetComponent<AudioSource>();
         cardImage.gameObject.SetActive(false);
         GetComponent<Button>().onClick.AddListener(delegate { StartCoroutine(_rotateAnimation()); });
     }
@@ -44,6 +47,7 @@ public class Card : MonoBehaviour
        
        
     }
+
     bool finishedFlipAnim = true;
     IEnumerator flip(bool back,Vector2 flipedRotation,Vector2 initRotation)
     {
@@ -76,6 +80,8 @@ public class Card : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         transform.localEulerAngles =flipedRot;
+        if(!mute)
+        audioSource.PlayOneShot(flipClip);
         yield return new WaitForSeconds(0.1f);
         finishedFlipAnim = true;
     }
@@ -107,7 +113,7 @@ public class Card : MonoBehaviour
             yield return new WaitForEndOfFrame();
 
         }
-      
+        GameManager.instance.playClip("match");
         yield return new WaitForSeconds(0.2f);
 
         GameManager.instance.destroyCard(this);
