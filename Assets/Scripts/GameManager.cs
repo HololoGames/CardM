@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -35,16 +37,25 @@ public class GameManager : MonoBehaviour
     List<Sprite> cardImages;
     public void initcards(int nbrCol, int nbrRow, Transform cardContainer)
     {
-        int nbrOfCards = nbrCol * nbrRow;
-        cardImages = new List<Sprite>();
-        for(int i=0;i<nbrOfCards/2;i++)
+        if(PlayerPrefs.GetInt("playMode")==1)
         {
-            cardImages.Add(listOfCardImages[i]);
-            cardImages.Add(listOfCardImages[i]);
+          
+            load(cardContainer);
+        }else
+        {
+            
+            int nbrOfCards = nbrCol * nbrRow;
+            cardImages = new List<Sprite>();
+            for (int i = 0; i < nbrOfCards / 2; i++)
+            {
+                cardImages.Add(listOfCardImages[i]);
+                cardImages.Add(listOfCardImages[i]);
+            }
+            cardImages.Shuffle();
+
+            StartCoroutine(spawnCards(nbrCol, nbrRow, cardContainer));
         }
-        cardImages.Shuffle();
         
-        StartCoroutine(spawnCards(nbrCol, nbrRow, cardContainer));
 
     }
 
@@ -137,5 +148,59 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
-    
+
+    IEnumerator loadCards( Transform cardContainer)
+    {
+      
+
+        for (int i = 0; i < listOfImageIndexes.Count; i++)
+        {
+            Card card = Instantiate(cardModel, cardContainer);
+            listOfCards.Add(card);
+            card.setcardImage(listOfCardImages[listOfImageIndexes[i]]);
+            StartCoroutine(spawnAnimation(card.GetComponent<Image>()));
+            yield return new WaitUntil(() => !beginAnimation);
+
+        }
+        cardContainer.GetComponent<GridLayoutGroup>().enabled = false;
+    }
+
+    //save and load 
+
+
+    List<int> listOfImageIndexes = new List<int>();
+    public void save()
+    {
+        BinaryFormatter formatter = new BinaryFormatter();
+        string path = Application.persistentDataPath + "/data.unity";
+        FileStream stream = new FileStream(path, FileMode.Create);
+
+        listOfImageIndexes.Clear();
+        foreach (Card card in listOfCards)
+        {
+        listOfImageIndexes.Add(listOfCardImages.IndexOf(card.getCardImage().sprite));
+
+        }
+        
+        Data data=new Data(listOfImageIndexes.ToArray());
+        formatter.Serialize(stream,data);
+        stream.Close();
+    }
+     void load(Transform cardContainer)
+    {
+        string path = Application.persistentDataPath + "/data.unity";
+        if(File.Exists(path))
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = new FileStream(path, FileMode.Open);
+            Data data = formatter.Deserialize(stream) as Data;
+           
+            listOfImageIndexes.AddRange(data.cardImageIndexes);
+            
+            stream.Close();
+            StartCoroutine(loadCards(cardContainer));
+
+        }
+        PlayerPrefs.SetInt("playMode", 0);
+    }
 }
