@@ -26,3 +26,5 @@ GamePlay:
 ![image_001_0779](https://github.com/user-attachments/assets/a86c8672-dbdd-4ea0-a9f3-f0c23644450d)
 
 ![image_001_1277](https://github.com/user-attachments/assets/7c2521e3-6dfe-4d3a-ae4f-b2dc223fe7b6)
+
+![image_001_1571](https://github.com/user-attachments/assets/3dde18c1-3254-439b-b544-60b5efc0b6f9)
