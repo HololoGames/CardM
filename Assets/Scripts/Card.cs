@@ -107,6 +107,7 @@ public class Card : MonoBehaviour
             yield return new WaitForEndOfFrame();
 
         }
+      
         yield return new WaitForSeconds(0.2f);
 
         GameManager.instance.destroyCard(this);
