@@ -14,7 +14,7 @@ public class Card : MonoBehaviour
 
     AudioSource audioSource;
    
-    public static bool mute;
+    public static bool mute,canPlay=true;
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -34,6 +34,8 @@ public class Card : MonoBehaviour
     Vector2 initRotation, flipedRotation;
     IEnumerator _rotateAnimation()
     {
+        if (!canPlay)
+            yield return null;
          initRotation = transform.localEulerAngles;
          flipedRotation = new Vector2(0, -180);
         backCardImage = GetComponent<Image>().sprite;

@@ -6,10 +6,14 @@ using UnityEngine.SceneManagement;
 using System.IO;
 public class LayoutChoiceManager : MonoBehaviour
 {
-    TMP_Dropdown dropdown;
+    [SerializeField]
+    TMP_InputField rows, columns;
+  
+    [SerializeField]
+    Animator errorMessage;
     void Start()
     {
-        dropdown = GetComponent<TMP_Dropdown>();
+      
         
     }
 
@@ -19,8 +23,10 @@ public class LayoutChoiceManager : MonoBehaviour
         
     }
     public void Play()
-    {        
-        PlayerPrefs.SetString("Layout", dropdown.options[dropdown.value].text);
+    {
+        if (!checkIfLayoutCorrect())
+            return;
+        PlayerPrefs.SetString("Layout", rows.text+"x"+columns.text);
         PlayerPrefs.SetInt("playMode", 0);
         SceneManager.LoadScene(1);
     }
@@ -30,10 +36,32 @@ public class LayoutChoiceManager : MonoBehaviour
         if (File.Exists(path))
         {
             PlayerPrefs.SetInt("playMode", 1);
-        }else
-        {
-            PlayerPrefs.SetInt("playMode", 0);
+            SceneManager.LoadScene(1);
         }
-        SceneManager.LoadScene(1);
+        else
+        {
+            errorMessage.Play("loadErrorMessage");
+        }
+        
+    }
+    bool checkIfLayoutCorrect()
+    {
+        if(rows.text.Length==0 || columns.text.Length==0)
+        {
+            errorMessage.GetComponent<TextMeshProUGUI>().text = "Please choose a layout";
+            errorMessage.Play("loadErrorMessage");
+            return false;
+        }
+        
+
+        int row = int.Parse(rows.text);
+        int col= int.Parse(columns.text);
+        if((row*col)%2==1)
+        {
+            errorMessage.GetComponent<TextMeshProUGUI>().text = "the number of cards should be even";
+            errorMessage.Play("loadErrorMessage");
+            return false;
+        }
+        return true;
     }
 }

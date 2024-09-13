@@ -16,9 +16,9 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     TextMeshProUGUI matchesText,turnsText,comboText,comboTextSidBar;
     [SerializeField]
-    GameObject nextButton,muteSign;
+    GameObject nextButton,muteSign,savingProgressBar;
     [SerializeField]
-    AudioClip matchCardClip,comboClip, cardPlaceClip;
+    AudioClip matchCardClip,comboClip, cardPlaceClip, audioOnClip;
     AudioSource audioSource;
 
     private void Awake()
@@ -167,6 +167,8 @@ public class GameManager : MonoBehaviour
         audioSource.mute=r== 0;
         muteSign.SetActive(r == 0);
         Card.mute = r == 0;
+        if (r == 1)
+            audioSource.PlayOneShot(audioOnClip);
         nbrOfClicks++;
     }
 
@@ -192,6 +194,8 @@ public class GameManager : MonoBehaviour
     List<int> listOfImageIndexes = new List<int>();
     public void save()
     {
+        Card.canPlay = false;
+        savingProgressBar.SetActive(true);
         BinaryFormatter formatter = new BinaryFormatter();
         string path = Application.persistentDataPath + "/data.unity";
         FileStream stream = new FileStream(path, FileMode.Create);
@@ -203,9 +207,10 @@ public class GameManager : MonoBehaviour
 
         }
         
-        Data data=new Data(listOfImageIndexes.ToArray());
+        Data data=new Data(listOfImageIndexes.ToArray(),matches,turns,combo);
         formatter.Serialize(stream,data);
         stream.Close();
+       
     }
      void load(Transform cardContainer)
     {
@@ -217,7 +222,12 @@ public class GameManager : MonoBehaviour
             Data data = formatter.Deserialize(stream) as Data;
            
             listOfImageIndexes.AddRange(data.cardImageIndexes);
-            
+            matches = data.nbrOfMatches;
+            turns = data.nbrOfTurns;
+            combo = data.nbrCombo;
+            turnsText.text = turns.ToString();
+            comboTextSidBar.text =combo<0?"0":combo.ToString();
+            matchesText.text = matches.ToString();
             stream.Close();
             StartCoroutine(loadCards(cardContainer));
 
