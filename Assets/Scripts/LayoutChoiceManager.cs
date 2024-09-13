@@ -64,4 +64,8 @@ public class LayoutChoiceManager : MonoBehaviour
         }
         return true;
     }
+    public void quit()
+    {
+        Application.Quit();
+    }
 }
