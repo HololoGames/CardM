@@ -2859,7 +2859,7 @@ MonoBehaviour:
     m_Left: 0
     m_Right: 0
     m_Top: 14
-    m_Bottom: 0
+    m_Bottom: -14
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
