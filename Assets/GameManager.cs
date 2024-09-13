@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using TMPro;
+using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -12,6 +13,10 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     List<Sprite> listOfCardImages = new List<Sprite>();
 
+    [SerializeField]
+    TextMeshProUGUI matchesText,turnsText,comboText,comboTextSidBar;
+    [SerializeField]
+    GameObject nextButton;
     private void Awake()
     {
         instance = this;
@@ -43,7 +48,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-
+    List<Card> listOfCards = new List<Card>();
      IEnumerator spawnCards(int nbrCol,int nbrRow,Transform cardContainer)
     {
         int nbrOfCards = nbrCol * nbrRow;
@@ -51,7 +56,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < nbrOfCards; i++)
         {
             Card card = Instantiate(cardModel, cardContainer);
-            
+            listOfCards.Add(card);
             card.setcardImage(cardImages[i]);
             StartCoroutine(spawnAnimation(card.GetComponent<Image>()));
             yield return new WaitUntil(() => !beginAnimation);
@@ -75,6 +80,8 @@ public class GameManager : MonoBehaviour
         beginAnimation = false;
     }
     Card activeCard, previousCard;
+    int turns, matches,combo=-1;
+    
     public void addCard(Card card)
     {
         
@@ -89,14 +96,46 @@ public class GameManager : MonoBehaviour
             activeCard.match(true,previousCard);
             previousCard.match(true,activeCard);
             activeCard = previousCard = null;
+            matches++;
+            combo++;
+            if(combo>=1)
+            {
+                comboText.text = "combo " + combo;
+                comboText.gameObject.SetActive(true);
+                comboTextSidBar.text = combo.ToString();
+            }
+
+            matchesText.text = matches.ToString();
         }
         else
         {
             activeCard.match(false,null);
             previousCard.match(false,null);
             activeCard = previousCard = null;
+            turns++;
+            combo = -1;
+            comboTextSidBar.text = "0";
+            turnsText.text = turns.ToString();
             
         }
+     
+    }
+    public void next()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    public void destroyCard(Card card)
+    {
+       
+        listOfCards.Remove(card);
+     
+        Destroy(card.gameObject);
+        if (listOfCards.Count <= 0)
+            nextButton.SetActive(true);
+    }
+    public void home()
+    {
+        SceneManager.LoadScene(0);
     }
     
 }

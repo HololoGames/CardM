@@ -108,7 +108,8 @@ public class Card : MonoBehaviour
 
         }
         yield return new WaitForSeconds(0.2f);
-        Destroy(gameObject);
+
+        GameManager.instance.destroyCard(this);
 
     }
 
